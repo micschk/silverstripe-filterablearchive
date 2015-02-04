@@ -4,8 +4,8 @@ Filterable archive - filter pages by date, tag or category
 This module decorates pages with configurable fields to filter them by. Handy for newsitems & blogs, etc.
 (Largely adapted & decoupled from micmania1/silverstripe-blogger)
 
-*Filter items via dropdowns by date.*
-![](images/screenshots/todo.png)
+*Filter items via dropdowns by date (paginated).*
+![](images/screenshots/filter.png)
 
 
 ## Features
