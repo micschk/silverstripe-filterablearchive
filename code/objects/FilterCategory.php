@@ -19,7 +19,7 @@ class FilterCategory extends DataObject {
 		"HolderPage" => "SiteTree",
 	);
 
-	private static $belongs_many_many = array(
+	private static $many_many = array(
 		"Pages" => "SiteTree",
 	);
 
@@ -33,10 +33,36 @@ class FilterCategory extends DataObject {
 	
 	public function onBeforeWrite(){
 		parent::onBeforeWrite();
+		// set URLSegment
 		if($this->Title){
-			$this->URLSegment = SiteTree::GenerateURLSegment($this->Name);
+			$filter = URLSegmentFilter::create();
+			$this->URLSegment = $filter->filter($this->Title);
+			//$this->URLSegment = SiteTree::GenerateURLSegment($this->Title);
 		}
+		// Some cleaning up
+//		$this->Title = trim( $this->Title ); // strip spaces
+//		// if multiple with same title, combine in this one & remove duplicates;
+//		$sameTitleTag = FilterCategory::get()->filter('Title', $this->Title)->exclude('ID',$this->ID);
+//		if( $sameTitleTag->count() && $this->ID ){ //only if editing existing (ID is set)
+//			foreach( $sameTitleTag as $duplicate ){
+//				debug::dump($duplicate->Pages());
+////				foreach( $duplicate->Pages() as $page ){
+////					//add each page to this cat/tag
+////					//$this->Pages()->add( $page->ID );
+////				}
+//			}
+//		}
 	}
+	
+//	public function onAfterWrite() {
+//		parent::onAfterWrite();
+//		if( ! $this->Title ){ $this->delete(); }
+//		// remove duplicates (relations already copied to this one onbeforewrite)
+//		$sameTitleTag = FilterCategory::get()->filter('Title', $this->Title)->exclude('ID',$this->ID);
+//		if( $sameTitleTag->count() && $this->ID ){
+////			$sameTitleTag->removeAll();
+//		}
+//	}
 
 
 	/**

@@ -2,7 +2,7 @@
 
 class FilterableArchiveItemExtension extends SiteTreeExtension {
 	
-	private static $has_many = array(
+	private static $belongs_many_many = array(
 		"Tags" => "FilterTag",
 		"Categories" => "FilterCategory",
 	);

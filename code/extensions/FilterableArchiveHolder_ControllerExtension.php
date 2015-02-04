@@ -4,10 +4,14 @@ class FilterableArchiveHolder_ControllerExtension extends Extension {
 
 	private static $allowed_actions = array(
 		'archive',
+		'tag',
+		'cat'
 	);
 
 	private static $url_handlers = array(
 		'archive/$Year!/$Month/$Day' => 'archive',
+		'tag/$Tag!' => 'tag',
+		'cat/$Category!' => 'cat',
 	);
 	
 	/**
@@ -36,6 +40,62 @@ class FilterableArchiveHolder_ControllerExtension extends Extension {
 		} else {
 			return $this->owner->redirect($this->owner->AbsoluteLink(), 303); //301: movedperm, 302: movedtemp, 303: see other
 		}
+	}
+	
+	/**
+	 * Tag Getter for use in templates.
+	 *
+	 * @return BlogTag|null
+	**/
+	public function getCurrentTag() {
+		$tag = $this->owner->request->param("Tag");
+		if($tag) {
+			return $this->owner->dataRecord->Tags()
+				->filter("URLSegment", $tag)
+				->first();
+		}
+		return null;
+	}
+	/**
+	 * Category Getter for use in templates.
+	 *
+	 * @return BlogCategory|null
+	**/
+	public function getCurrentCategory() {
+		$category = $this->owner->request->param("Category");
+		if($category) {
+			return $this->owner->dataRecord->Categories()
+				->filter("URLSegment", $category)
+				->first();
+		}
+		return null;
+	}
+	
+	/**
+	 * Renders the blog posts for a given tag.
+	 *
+	 * @return SS_HTTPResponse
+	**/
+	public function tag() {
+		$tag = $this->owner->getCurrentTag();
+		if($tag) {
+			$this->owner->Items = $tag->Pages();
+			return $this->owner->render();
+		}
+		return $this->owner->httpError(404, "Not Found");
+	}
+	/**
+	 * Renders the blog posts for a given category
+	 *
+	 * @return SS_HTTPResponse
+	**/
+	public function cat() {
+		$category = $this->owner->getCurrentCategory();
+		if($category) {
+			$this->owner->Items = $category->Pages();
+			return $this->owner->render();
+		}
+		return $this->owner->httpError(404, "Not Found");
 	}
 	
 	/**

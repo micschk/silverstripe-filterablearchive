@@ -188,6 +188,7 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 		
 		$DrDown = new DropdownField( 'archiveunits', '', $itemArr );
 		$DrDown->setEmptyString(_t('filterablearchive.FILTER', 'Filter items'));
+		$DrDown->addExtraClass("dropdown form-control");
 		
 		// specific to the 'archive' action defined by FilterableArchiveHolder_ControllerExtension (if available)
 		$ctrl = Controller::curr();

@@ -19,7 +19,7 @@ class FilterTag extends DataObject {
 		"HolderPage" => "SiteTree",
 	);
 
-	private static $belongs_many_many = array(
+	private static $many_many = array(
 		"Pages" => "SiteTree",
 	);
 
@@ -34,9 +34,25 @@ class FilterTag extends DataObject {
 	public function onBeforeWrite(){
 		parent::onBeforeWrite();
 		if($this->Title){
-			$this->URLSegment = SiteTree::GenerateURLSegment($this->Name);
+			$filter = URLSegmentFilter::create();
+			$this->URLSegment = $filter->filter($this->Title);
+			//$this->URLSegment = SiteTree::GenerateURLSegment($this->Title);
 		}
 	}
+	
+//	public function onAfterWrite(){
+//		parent::onAfterWrite();
+//		$existing = FilterCategory::get()->filter('Title',$this->Title);
+//		if($existing->count() > 1){
+//			// join tags into one
+//			$first = $existing->first();
+//			foreach($existing as $item){
+//				if($first->ID == $item->ID){ continue; }
+//				//$first->Pages()->add( $item->Pages() );
+//				$item->delete();
+//			}
+//		}
+//	}
 
 
 	/**
