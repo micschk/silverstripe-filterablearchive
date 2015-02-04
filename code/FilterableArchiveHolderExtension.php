@@ -14,6 +14,11 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 		'ArchiveUnit' => 'Enum("year, month, day")',
     );
 	
+	private static $has_many = array(
+		"Tags" => "FilterTag",
+		"Categories" => "FilterCategory",
+	);
+	
 	// get configurations from extended class, self or private static
 	public function getConfigValue($name){
 		$conf = Config::inst()->get($this->owner->className, $name);
@@ -25,6 +30,14 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	// add fields to CMS
 	public function updateCMSFields(FieldList $fields) {
 		
+		// check if the insertbefore field is present (may be added later, in which case the above 
+		// fields never get added
+		$insertOnTab = $this->owner->getConfigValue('pagination_control_tab');
+		$insertBefore = $this->owner->getConfigValue('pagination_insert_before');
+		if(!$fields->fieldByName("$insertOnTab.$insertBefore")){
+			$insertBefore = null;
+		}
+		
 		$fields->addFieldToTab($this->owner->getConfigValue('pagination_control_tab'), 
 			DropdownField::create('ArchiveUnit', 
 				_t('filterablearchive.ARCHIVEUNIT', 'Archive unit'),
@@ -32,15 +45,51 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 					'year' => _t('filterablearchive.YEAR', 'Year'),
 					'month' => _t('filterablearchive.MONTH', 'Month'),
 					'day' => _t('filterablearchive.DAY', 'Day'),
-				)), $this->owner->getConfigValue('pagination_insert_before'));
+				)), $insertBefore);
 		
 		$pagerField = NumericField::create("ItemsPerPage", 
 				_t("filterablearchive.ItemsPerPage", "Pagination: items per page"))
-				->setRightTitle(_t("filterablearchive.LeaveEmptyForNone", "Leave empty or '0' for no pagination"));
+				->setRightTitle(_t("filterablearchive.LeaveEmptyForNone", 
+						"Leave empty or '0' for no pagination"));
+		
 		$fields->addFieldToTab(
-				$this->owner->getConfigValue('pagination_control_tab'), 
+				$insertOnTab, 
 				$pagerField, 
-				$this->owner->getConfigValue('pagination_insert_before'));
+				$insertBefore
+				);
+		
+		//
+		// Create categories and tag config
+		//
+//		$config = GridFieldConfig_RecordEditor::create();
+//		$config->removeComponentsByType("GridFieldAddNewButton");
+//		$config->addComponent(new GridFieldAddByDBField("buttons-before-left"));
+		
+		// Lets just use what others have made already...
+		$config = GridFieldConfig::create()
+        ->addComponent(new GridFieldButtonRow('before'))
+        ->addComponent(new GridFieldToolbarHeader())
+        ->addComponent(new GridFieldTitleHeader())
+        ->addComponent(new GridFieldEditableColumns())
+        ->addComponent(new GridFieldDeleteAction())
+        ->addComponent(new GridFieldAddNewInlineButton('toolbar-header-right'));
+		
+		$categories = GridField::create(
+			"Categories",
+			_t("FilterableArchive.Categories", "Categories"),
+			$this->owner->Categories(),
+			$config
+		);
+		$tags = GridField::create(
+			"Tags",
+			_t("FilterableArchive.Tags", "Tags"),
+			$this->owner->Tags(),
+			$config
+		);
+		$fields->addFieldsToTab($insertOnTab, array(
+			$categories,
+			$tags
+		), $insertBefore);
 		
 	}
 	

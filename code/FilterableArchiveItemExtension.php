@@ -1,6 +1,61 @@
 <?php
 
 class FilterableArchiveItemExtension extends SiteTreeExtension {
+	
+	private static $has_many = array(
+		"Tags" => "FilterTag",
+		"Categories" => "FilterCategory",
+	);
+	
+	public function updateCMSFields(\FieldList $fields) {
+		parent::updateCMSFields($fields);
+		
+		// Add Categories & Tags fields
+		$categoriesField = ListboxField::create(
+			"Categories", 
+			_t("FilterableArchive.Categories", "Categories"), 
+			$this->owner->Parent()->Categories()->map()->toArray()
+		)->setMultiple(true);
+		
+//		$newCategoriesField = MultiValueTextField::create('NewCategories',
+//				_t("FilterableArchive.NewCategories", 'Add new categories'));
+		
+		//$dateField = $this->owner->Parent()->getConfigValue('managed_object_date_field');
+		//Debug::dump($dateField);
+		$fields->insertbefore($categoriesField, "Content");
+//		$fields->insertAfter($newCategoriesField, "Categories");
+		//$fields->push($categoriesField);
+		
+		$tagsField = ListboxField::create(
+			"Tags", 
+			_t("BlogPost.Tags", "Tags"), 
+			$this->owner->Parent()->Tags()->map()->toArray()
+		)->setMultiple(true);
+		$fields->insertAfter($tagsField, "Categories");
+		//$fields->push($tagsField);
+		
+	}
+	
+	public function onBeforeWrite() {
+		parent::onBeforeWrite();
+		
+		// create & add new categories
+//		$newCatArr = $this->owner->NewCategories;
+//		Debug::dump($this->owner->getField('NewCategories'));
+//		foreach($newCatArr as $newCat){
+//			if($catObj = FilterCategory::get()->filter('Title',$newCat)->first()){
+//				// add existing
+//				$this->owner->Categories()->add($catObj);
+//			} else {
+//				// create & add
+//				$catObj = new FilterCategory();
+//				$catObj->Title = $newCat;
+//				$catObj->write();
+//				$this->owner->Categories()->add($catObj);
+//			}
+//		}
+		
+	}
 
 	/**
 	 * Returns a monthly archive link for the current item.
@@ -35,7 +90,8 @@ class FilterableArchiveItemExtension extends SiteTreeExtension {
 	 * @return string URL
 	**/
 	public function getYearArchiveLink() {
-		$date = $this->dbObject(self::$date_field);
+		$datefield = $this->owner->Parent()->getConfigValue('managed_object_date_field');
+		$date = $this->dbObject($datefield);
 		return Controller::join_links($this->owner->Parent()->Link("archive"), $date->format("Y"));
 	}
 	
