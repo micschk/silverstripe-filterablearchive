@@ -38,7 +38,7 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 			$insertBefore = null;
 		}
 		
-		if(getConfigValue('datearchive_active')){
+		if($this->owner->getConfigValue('datearchive_active')){
 			$fields->addFieldToTab($this->owner->getConfigValue('pagination_control_tab'), 
 				DropdownField::create('ArchiveUnit', 
 					_t('filterablearchive.ARCHIVEUNIT', 'Archive unit'),
@@ -76,7 +76,7 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
         ->addComponent(new GridFieldDeleteAction())
         ->addComponent(new GridFieldAddNewInlineButton('toolbar-header-right'));
 		
-		if(getConfigValue('categories_active')){
+		if($this->owner->getConfigValue('categories_active')){
 			$fields->addFieldToTab($insertOnTab, 
 					$categories = GridField::create(
 						"Categories",
@@ -85,7 +85,7 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 						$config
 					), $insertBefore);
 		}
-		if(getConfigValue('tags_active')){
+		if($this->owner->getConfigValue('tags_active')){
 			$fields->addFieldToTab($insertOnTab, 
 					$tags = GridField::create(
 						"Tags",
