@@ -2,16 +2,16 @@
 
 class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	
-	private static $managed_object_class = "Page";
-	private static $managed_object_date_field = "PublishDate";
-	
-	private static $pagination_control_tab = "Root.Main";
-	private static $pagination_insert_before = null;
-	private static $pagination_active = true;
-	
-	private static $tags_active = true;
-	private static $categories_active = true;
-	private static $datearchive_active = true;
+//	private static $managed_object_class = "Page";
+//	private static $managed_object_date_field = "PublishDate";
+//	
+//	private static $pagination_control_tab = "Root.Main";
+//	private static $pagination_insert_before = null;
+//	private static $pagination_active = true;
+//	
+//	private static $tags_active = true;
+//	private static $categories_active = true;
+//	private static $datearchive_active = true;
 	
 	static $db = array(
 		'ItemsPerPage' => 'Int',
