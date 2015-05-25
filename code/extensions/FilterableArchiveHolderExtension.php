@@ -13,6 +13,10 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 //	private static $categories_active = true;
 //	private static $datearchive_active = true;
 	
+	private static $tags_active = true;
+	private static $categories_active = true;
+	private static $datearchive_active = true;
+	
 	static $db = array(
 		'ItemsPerPage' => 'Int',
 		'ArchiveUnit' => 'Enum("year, month, day")',
@@ -24,6 +28,7 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	);
 	
 	// get configurations from extended class, self or private static
+	//test
 	public function getConfigValue($name){
 		$conf = Config::inst()->get($this->owner->className, $name);
 		if(!$conf===null) $conf = Config::inst()->get("FilterableArchiveHolderExtension", $name);
