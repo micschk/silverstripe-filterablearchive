@@ -24,6 +24,7 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	);
 	
 	// get configurations from extended class, self or private static
+	//test
 	public function getConfigValue($name){
 		$conf = Config::inst()->get($this->owner->className, $name);
 		if(!$conf) $conf = Config::inst()->get("FilterableArchiveHolderExtension", $name);
