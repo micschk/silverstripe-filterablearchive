@@ -11,10 +11,6 @@ This module decorates pages with configurable fields to filter them by. Handy fo
 ## Features
 
 * Apply decorators to filter pages by date (year, month/year, or day/month/year)
-
-
-## Todo
-
 * Filtering by Tags & Categories & corresponding extensions
 
 
