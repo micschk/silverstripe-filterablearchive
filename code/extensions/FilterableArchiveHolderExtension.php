@@ -13,10 +13,6 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	private static $categories_active = true;
 	private static $datearchive_active = true;
 	
-	private static $tags_active = true;
-	private static $categories_active = true;
-	private static $datearchive_active = true;
-	
 	static $db = array(
 		'ItemsPerPage' => 'Int',
 		'ArchiveUnit' => 'Enum("year, month, day")',
