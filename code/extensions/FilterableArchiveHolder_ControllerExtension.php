@@ -3,13 +3,15 @@
 class FilterableArchiveHolder_ControllerExtension extends Extension {
 
 	private static $allowed_actions = array(
-		'archive',
+		'archive', # renamed to 'date'
+		'date',
 		'tag',
 		'cat'
 	);
 
 	private static $url_handlers = array(
-		'archive/$Year!/$Month/$Day' => 'archive',
+		'archive/$Year!/$Month/$Day' => 'date', # renamed to 'date'
+		'date/$Year!/$Month/$Day' => 'date',
 		'tag/$Tag!' => 'tag',
 		'cat/$Category!' => 'cat',
 	);
@@ -19,7 +21,7 @@ class FilterableArchiveHolder_ControllerExtension extends Extension {
 	 *
 	 * @return SS_HTTPResponse
 	**/
-	public function archive() {
+	public function date() {
 		$year = $this->owner->getArchiveYear();
 		$month = $this->owner->getArchiveMonth();
 		$day = $this->owner->getArchiveDay();

@@ -2,12 +2,20 @@
 
 class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	
-	private static $managed_object_class = "Page";
-	private static $managed_object_date_field = "PublishDate";
+//	private static $managed_object_class = "Page";
+//	private static $managed_object_date_field = "PublishDate";
+//	
+//	private static $pagination_control_tab = "Root.Main";
+//	private static $pagination_insert_before = null;
+//	private static $pagination_active = true;
+//	
+//	private static $tags_active = true;
+//	private static $categories_active = true;
+//	private static $datearchive_active = true;
 	
-	private static $pagination_control_tab = "Root.Main";
-	private static $pagination_insert_before = null;
-	private static $pagination_active = true;
+	private static $tags_active = true;
+	private static $categories_active = true;
+	private static $datearchive_active = true;
 	
 	private static $tags_active = true;
 	private static $categories_active = true;
@@ -24,10 +32,11 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	);
 	
 	// get configurations from extended class, self or private static
+	//test
 	public function getConfigValue($name){
 		$conf = Config::inst()->get($this->owner->className, $name);
-		if(!$conf) $conf = Config::inst()->get("FilterableArchiveHolderExtension", $name);
-		if(!$conf) $conf = self::$$name;
+		if(!$conf===null) $conf = Config::inst()->get("FilterableArchiveHolderExtension", $name);
+		if(!$conf===null) $conf = self::$$name;
 		return $conf;
 	}
 	
@@ -42,14 +51,16 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 			$insertBefore = null;
 		}
 		
-		$fields->addFieldToTab($this->owner->getConfigValue('pagination_control_tab'), 
-			DropdownField::create('ArchiveUnit', 
-				_t('filterablearchive.ARCHIVEUNIT', 'Archive unit'),
-				array(
-					'year' => _t('filterablearchive.YEAR', 'Year'),
-					'month' => _t('filterablearchive.MONTH', 'Month'),
-					'day' => _t('filterablearchive.DAY', 'Day'),
-				)), $insertBefore);
+		if($this->owner->getConfigValue('datearchive_active')){
+			$fields->addFieldToTab($this->owner->getConfigValue('pagination_control_tab'), 
+				DropdownField::create('ArchiveUnit', 
+					_t('filterablearchive.ARCHIVEUNIT', 'Archive unit'),
+					array(
+						'year' => _t('filterablearchive.YEAR', 'Year'),
+						'month' => _t('filterablearchive.MONTH', 'Month'),
+						'day' => _t('filterablearchive.DAY', 'Day'),
+					)), $insertBefore);
+		}
 		
 		$pagerField = NumericField::create("ItemsPerPage", 
 				_t("filterablearchive.ItemsPerPage", "Pagination: items per page"))
@@ -78,22 +89,24 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
         ->addComponent(new GridFieldDeleteAction())
         ->addComponent(new GridFieldAddNewInlineButton('toolbar-header-right'));
 		
-		$categories = GridField::create(
-			"Categories",
-			_t("FilterableArchive.Categories", "Categories"),
-			$this->owner->Categories(),
-			$config
-		);
-		$tags = GridField::create(
-			"Tags",
-			_t("FilterableArchive.Tags", "Tags"),
-			$this->owner->Tags(),
-			$config
-		);
-		$fields->addFieldsToTab($insertOnTab, array(
-			$categories,
-			$tags
-		), $insertBefore);
+		if($this->owner->getConfigValue('categories_active')){
+			$fields->addFieldToTab($insertOnTab, 
+					$categories = GridField::create(
+						"Categories",
+						_t("FilterableArchive.Categories", "Categories"),
+						$this->owner->Categories(),
+						$config
+					), $insertBefore);
+		}
+		if($this->owner->getConfigValue('tags_active')){
+			$fields->addFieldToTab($insertOnTab, 
+					$tags = GridField::create(
+						"Tags",
+						_t("FilterableArchive.Tags", "Tags"),
+						$this->owner->Tags(),
+						$config
+					), $insertBefore);
+		}
 		
 	}
 	
@@ -137,9 +150,13 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 		if($month) {
 			if($day) {
 				return $this->owner->getItems()
-						->where("DAY({$dateField}) = '" . Convert::raw2sql($day) . "'");
+						->where("DAY({$dateField}) = '" . Convert::raw2sql($day) . "' 
+							AND MONTH({$dateField}) = '" . Convert::raw2sql($month) . "'
+							AND YEAR({$dateField}) = '" . Convert::raw2sql($year) . "'");
 			}
-			return $this->owner->getItems()->where("MONTH({$dateField}) = '" . Convert::raw2sql($month) . "'");
+			return $this->owner->getItems()
+					->where("MONTH({$dateField}) = '" . Convert::raw2sql($month) . "'
+						AND YEAR({$dateField}) = '" . Convert::raw2sql($year) . "'");
 		} else {
 			return $this->owner->getItems()->where("YEAR({$dateField}) = '" . Convert::raw2sql($year) . "'");
 		}
@@ -205,7 +222,7 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 		$DrDown->setValue($activeUnit);
 		
 		// again, tie this to the 'archive' action;
-		$DrDown->setAttribute('onchange', "location = '{$this->owner->AbsoluteLink()}archive/'+this.value;");
+		$DrDown->setAttribute('onchange', "location = '{$this->owner->AbsoluteLink()}date/'+this.value;");
 		return $DrDown;
 	}
 	
