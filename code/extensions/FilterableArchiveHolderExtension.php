@@ -24,11 +24,14 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	);
 	
 	// get configurations from extended class, self or private static
-	//test
-	public function getConfigValue($name){
+	public function getFilterableArchiveConfigValue($name){
+//		if($name=="tags_active"){ var_dump( Config::inst()->get($this->owner->className, $name) ); }
 		$conf = Config::inst()->get($this->owner->className, $name);
-		if(!$conf===null) $conf = Config::inst()->get("FilterableArchiveHolderExtension", $name);
-		if(!$conf===null) $conf = self::$$name;
+//		if($name=="tags_active"){ Debug::dump("{$this->owner->className} $name: $conf"); }
+		if($conf===null) $conf = Config::inst()->get("FilterableArchiveHolderExtension", $name);
+//		if($name=="tags_active"){ Debug::dump("{$this->owner->className} $name: $conf"); }
+		if($conf===null) $conf = self::$$name;
+//		if($name=="tags_active"){ Debug::dump("{$this->owner->className} $name: $conf"); }
 		return $conf;
 	}
 	
@@ -37,14 +40,14 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 		
 		// check if the insertbefore field is present (may be added later, in which case the above 
 		// fields never get added
-		$insertOnTab = $this->owner->getConfigValue('pagination_control_tab');
-		$insertBefore = $this->owner->getConfigValue('pagination_insert_before');
+		$insertOnTab = $this->owner->getFilterableArchiveConfigValue('pagination_control_tab');
+		$insertBefore = $this->owner->getFilterableArchiveConfigValue('pagination_insert_before');
 		if(!$fields->fieldByName("$insertOnTab.$insertBefore")){
 			$insertBefore = null;
 		}
 		
-		if($this->owner->getConfigValue('datearchive_active')){
-			$fields->addFieldToTab($this->owner->getConfigValue('pagination_control_tab'), 
+		if($this->owner->getFilterableArchiveConfigValue('datearchive_active')){
+			$fields->addFieldToTab($this->owner->getFilterableArchiveConfigValue('pagination_control_tab'), 
 				DropdownField::create('ArchiveUnit', 
 					_t('filterablearchive.ARCHIVEUNIT', 'Archive unit'),
 					array(
@@ -81,7 +84,7 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
         ->addComponent(new GridFieldDeleteAction())
         ->addComponent(new GridFieldAddNewInlineButton('toolbar-header-right'));
 		
-		if($this->owner->getConfigValue('categories_active')){
+		if($this->owner->getFilterableArchiveConfigValue('categories_active')){
 			$fields->addFieldToTab($insertOnTab, 
 					$categories = GridField::create(
 						"Categories",
@@ -90,7 +93,7 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 						$config
 					), $insertBefore);
 		}
-		if($this->owner->getConfigValue('tags_active')){
+		if($this->owner->getFilterableArchiveConfigValue('tags_active')){
 			$fields->addFieldToTab($insertOnTab, 
 					$tags = GridField::create(
 						"Tags",
@@ -109,8 +112,8 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	**/
 	public function getItems() {
 		
-		$class = $this->owner->getConfigValue('managed_object_class');
-		$dateField = $this->owner->getConfigValue('managed_object_date_field');
+		$class = $this->owner->getFilterableArchiveConfigValue('managed_object_class');
+		$dateField = $this->owner->getFilterableArchiveConfigValue('managed_object_date_field');
 		$items = $class::get()->filter('ParentID',$this->owner->ID)->sort("$dateField DESC");
 		
 		// workaround for Embargo/Expiry (augmentSQL for embargo/expiry is not working yet);
@@ -136,8 +139,8 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	**/
 	public function getFilteredArchiveItems($year, $month = null, $day = null) {
 		
-		$class = $this->owner->getConfigValue('managed_object_class');
-		$dateField = $this->owner->getConfigValue('managed_object_date_field');
+		$class = $this->owner->getFilterableArchiveConfigValue('managed_object_class');
+		$dateField = $this->owner->getFilterableArchiveConfigValue('managed_object_date_field');
 		
 		if($month) {
 			if($day) {
@@ -176,7 +179,7 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 		
 		// build array with available archive 'units'
 		$items = $this->owner->getItems();
-		$dateField = $this->owner->getConfigValue('managed_object_date_field');
+		$dateField = $this->owner->getFilterableArchiveConfigValue('managed_object_date_field');
 		$itemArr = array();
 		foreach ($items as $item) {
 			if (!$item->$dateField) {
