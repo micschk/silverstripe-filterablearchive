@@ -9,7 +9,8 @@
     }],
     "require": {
         "silverstripe/framework": "~3.0",
-		"silverstripe/cms": "~3.0"
+		"silverstripe/cms": "~3.0",
+		"silverstripe/tagfield": "~1.0"
     },
 	"extra": {
 		"installer-name": "filterablearchive"
