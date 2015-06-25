@@ -11,7 +11,8 @@ class FilterableArchiveItemExtension extends SiteTreeExtension {
 		parent::updateCMSFields($fields);
 		
 		// Add Categories & Tags fields
-		if($this->owner->Parent()->getFilterableArchiveConfigValue('categories_active')){
+		//if($this->owner->Parent()->getFilterableArchiveConfigValue('categories_active')){
+		if(Config::inst()->get($this->owner->Parent()->className, 'categories_active')){
 //			$categoriesField = ListboxField::create(
 //				"Categories", 
 //				_t("FilterableArchive.Categories", "Categories"), 
@@ -32,7 +33,8 @@ class FilterableArchiveItemExtension extends SiteTreeExtension {
 			$fields->insertbefore($categoriesField, "Content");
 		}
 		
-		if($this->owner->Parent()->getFilterableArchiveConfigValue('tags_active')){
+		//if($this->owner->Parent()->getFilterableArchiveConfigValue('tags_active')){
+		if(Config::inst()->get($this->owner->Parent()->className, 'tags_active')){
 //			$tagsField = ListboxField::create(
 //				"Tags", 
 //				_t("BlogPost.Tags", "Tags"), 
@@ -70,10 +72,10 @@ class FilterableArchiveItemExtension extends SiteTreeExtension {
 		}
 	}
 	
-	public function onBeforeWrite() {
-		parent::onBeforeWrite();
-		
-		// create & add new categories
+//	public function onBeforeWrite() {
+//		parent::onBeforeWrite();
+//		
+//		// create & add new categories
 //		$newCatArr = $this->owner->NewCategories;
 //		Debug::dump($this->owner->getField('NewCategories'));
 //		foreach($newCatArr as $newCat){
@@ -88,8 +90,8 @@ class FilterableArchiveItemExtension extends SiteTreeExtension {
 //				$this->owner->Categories()->add($catObj);
 //			}
 //		}
-		
-	}
+//		
+//	}
 
 	/**
 	 * Returns a monthly archive link for the current item.
@@ -101,7 +103,8 @@ class FilterableArchiveItemExtension extends SiteTreeExtension {
 	public function getArchiveLink($archiveunit = false) {
 		if(!$archiveunit) $archiveunit = $this->owner->Parent()->ArchiveUnit;
 		if(!$archiveunit) $archiveunit = 'month'; // default
-		$datefield = $this->owner->Parent()->getFilterableArchiveConfigValue('managed_object_date_field');
+		//$datefield = $this->owner->Parent()->getFilterableArchiveConfigValue('managed_object_date_field');
+		$datefield = Config::inst()->get($this->owner->Parent()->className, 'managed_object_date_field');
 		$date = $this->owner->dbObject( $datefield );
 		if($archiveunit == "month") {
 			return Controller::join_links($this->owner->Parent()->Link("date"), 
@@ -124,7 +127,8 @@ class FilterableArchiveItemExtension extends SiteTreeExtension {
 	 * @return string URL
 	**/
 	public function getYearArchiveLink() {
-		$datefield = $this->owner->Parent()->getFilterableArchiveConfigValue('managed_object_date_field');
+		//$datefield = $this->owner->Parent()->getFilterableArchiveConfigValue('managed_object_date_field');
+		$datefield = Config::inst()->get($this->owner->Parent()->className, 'managed_object_date_field');
 		$date = $this->dbObject($datefield);
 		return Controller::join_links($this->owner->Parent()->Link("date"), $date->format("Y"));
 	}

@@ -24,30 +24,41 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	);
 	
 	// get configurations from extended class, self or private static
-	public function getFilterableArchiveConfigValue($name){
-//		if($name=="tags_active"){ var_dump( Config::inst()->get($this->owner->className, $name) ); }
-		$conf = Config::inst()->get($this->owner->className, $name);
-//		if($name=="tags_active"){ Debug::dump("{$this->owner->className} $name: $conf"); }
-		if($conf===null) $conf = Config::inst()->get("FilterableArchiveHolderExtension", $name);
-//		if($name=="tags_active"){ Debug::dump("{$this->owner->className} $name: $conf"); }
-		if($conf===null) $conf = self::$$name;
-//		if($name=="tags_active"){ Debug::dump("{$this->owner->className} $name: $conf"); }
-		return $conf;
-	}
+	// apparently SS config API already falls back to the statics if nothing is set in yaml, and
+	// we're applying the statics to the class by decorating/extension-ing, so these fallbacks are unneccessary
+//	public function getFilterableArchiveConfigValue($name){
+////		if($name=="tags_active"){ var_dump( Config::inst()->get($this->owner->className, $name) ); }
+//		$conf = Config::inst()->get($this->owner->className, $name);
+//		Debug::dump("{$this->owner->className} $name: $conf");
+//		var_dump(Config::inst()->get($this->owner->className, $name));
+//		if($conf===null) {
+//			$conf = Config::inst()->get("FilterableArchiveHolderExtension", $name);
+//			Debug::dump("{$this->owner->className} $name: $conf");
+//		}
+//		if($conf===null) {
+//			$conf = self::$$name;
+//			Debug::dump("{$this->owner->className} $name: $conf");
+//		}
+//		return $conf;
+//	}
 	
 	// add fields to CMS
 	public function updateCMSFields(FieldList $fields) {
 		
 		// check if the insertbefore field is present (may be added later, in which case the above 
 		// fields never get added
-		$insertOnTab = $this->owner->getFilterableArchiveConfigValue('pagination_control_tab');
-		$insertBefore = $this->owner->getFilterableArchiveConfigValue('pagination_insert_before');
+		//$insertOnTab = $this->owner->getFilterableArchiveConfigValue('pagination_control_tab');
+		//$insertBefore = $this->owner->getFilterableArchiveConfigValue('pagination_insert_before');
+		$insertOnTab = Config::inst()->get($this->owner->className, 'pagination_control_tab');
+		$insertBefore = Config::inst()->get($this->owner->className, 'pagination_insert_before');
 		if(!$fields->fieldByName("$insertOnTab.$insertBefore")){
 			$insertBefore = null;
 		}
 		
-		if($this->owner->getFilterableArchiveConfigValue('datearchive_active')){
-			$fields->addFieldToTab($this->owner->getFilterableArchiveConfigValue('pagination_control_tab'), 
+		//if($this->owner->getFilterableArchiveConfigValue('datearchive_active')){
+		if(Config::inst()->get($this->owner->className, 'datearchive_active')){
+			//$fields->addFieldToTab($this->owner->getFilterableArchiveConfigValue('pagination_control_tab'), 
+			$fields->addFieldToTab(Config::inst()->get($this->owner->className, 'pagination_control_tab'), 
 				DropdownField::create('ArchiveUnit', 
 					_t('filterablearchive.ARCHIVEUNIT', 'Archive unit'),
 					array(
@@ -84,7 +95,8 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
         ->addComponent(new GridFieldDeleteAction())
         ->addComponent(new GridFieldAddNewInlineButton('toolbar-header-right'));
 		
-		if($this->owner->getFilterableArchiveConfigValue('categories_active')){
+		//if($this->owner->getFilterableArchiveConfigValue('categories_active')){
+		if(Config::inst()->get($this->owner->className, 'categories_active')){
 			$fields->addFieldToTab($insertOnTab, 
 					$categories = GridField::create(
 						"Categories",
@@ -93,7 +105,8 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 						$config
 					), $insertBefore);
 		}
-		if($this->owner->getFilterableArchiveConfigValue('tags_active')){
+		//if($this->owner->getFilterableArchiveConfigValue('tags_active')){
+		if(Config::inst()->get($this->owner->className, 'tags_active')){
 			$fields->addFieldToTab($insertOnTab, 
 					$tags = GridField::create(
 						"Tags",
@@ -112,8 +125,10 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	**/
 	public function getItems() {
 		
-		$class = $this->owner->getFilterableArchiveConfigValue('managed_object_class');
-		$dateField = $this->owner->getFilterableArchiveConfigValue('managed_object_date_field');
+		//$class = $this->owner->getFilterableArchiveConfigValue('managed_object_class');
+		//$dateField = $this->owner->getFilterableArchiveConfigValue('managed_object_date_field');
+		$class = Config::inst()->get($this->owner->className, 'managed_object_class');
+		$dateField = Config::inst()->get($this->owner->className, 'managed_object_date_field');
 		$items = $class::get()->filter('ParentID',$this->owner->ID)->sort("$dateField DESC");
 		
 		// workaround for Embargo/Expiry (augmentSQL for embargo/expiry is not working yet);
@@ -139,8 +154,10 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 	**/
 	public function getFilteredArchiveItems($year, $month = null, $day = null) {
 		
-		$class = $this->owner->getFilterableArchiveConfigValue('managed_object_class');
-		$dateField = $this->owner->getFilterableArchiveConfigValue('managed_object_date_field');
+		//$class = $this->owner->getFilterableArchiveConfigValue('managed_object_class');
+		//$dateField = $this->owner->getFilterableArchiveConfigValue('managed_object_date_field');
+		$class = Config::inst()->get($this->owner->className, 'managed_object_class');
+		$dateField = Config::inst()->get($this->owner->className, 'managed_object_date_field');
 		
 		if($month) {
 			if($day) {
@@ -179,7 +196,8 @@ class FilterableArchiveHolderExtension extends SiteTreeExtension {
 		
 		// build array with available archive 'units'
 		$items = $this->owner->getItems();
-		$dateField = $this->owner->getFilterableArchiveConfigValue('managed_object_date_field');
+		//$dateField = $this->owner->getFilterableArchiveConfigValue('managed_object_date_field');
+		$dateField = Config::inst()->get($this->owner->className, 'managed_object_date_field');
 		$itemArr = array();
 		foreach ($items as $item) {
 			if (!$item->$dateField) {
