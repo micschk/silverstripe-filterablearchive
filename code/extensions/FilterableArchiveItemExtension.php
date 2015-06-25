@@ -12,23 +12,62 @@ class FilterableArchiveItemExtension extends SiteTreeExtension {
 		
 		// Add Categories & Tags fields
 		if($this->owner->Parent()->getFilterableArchiveConfigValue('categories_active')){
-			$categoriesField = ListboxField::create(
-				"Categories", 
+//			$categoriesField = ListboxField::create(
+//				"Categories", 
+//				_t("FilterableArchive.Categories", "Categories"), 
+//				$this->owner->Parent()->Categories()->map()->toArray()
+//			)->setMultiple(true);
+			
+			// Use tagfield instead (allows inline creation)
+			//$availableCats = FilterCategory::get()->filter('HolderPageID',$this->owner->ParentID);
+			$availableCats = $this->owner->Parent()->Categories();
+			$categoriesField = new TagField(
+				'Categories', 
 				_t("FilterableArchive.Categories", "Categories"), 
-				$this->owner->Parent()->Categories()->map()->toArray()
-			)->setMultiple(true);
+				$availableCats,
+				$this->owner->Categories()
+			);
+			//$categoriesField->setShouldLazyLoad(true); // tags should be lazy loaded (nope, gets all instead of just the parent's cats/tags)
+			$categoriesField->setCanCreate(true); // new tag DataObjects can be created (@TODO check privileges)
 			$fields->insertbefore($categoriesField, "Content");
 		}
 		
 		if($this->owner->Parent()->getFilterableArchiveConfigValue('tags_active')){
-			$tagsField = ListboxField::create(
-				"Tags", 
-				_t("BlogPost.Tags", "Tags"), 
-				$this->owner->Parent()->Tags()->map()->toArray()
-			)->setMultiple(true);
+//			$tagsField = ListboxField::create(
+//				"Tags", 
+//				_t("BlogPost.Tags", "Tags"), 
+//				$this->owner->Parent()->Tags()->map()->toArray()
+//			)->setMultiple(true);
+			
+			// Use tagfield instead (allows inline creation)
+			//$availableTags = FilterTag::get()->filter('HolderPageID',$this->owner->ParentID);
+			$availableTags = $this->owner->Parent()->Tags();
+			$tagsField = new TagField(
+				'Tags', 
+				_t("FilterableArchive.Tags", "Tags"), 
+				$availableTags,
+				$this->owner->Tags()
+			);
+			//$tagsField->setShouldLazyLoad(true); // tags should be lazy loaded (nope, gets all instead of just the parent's cats/tags)
+			$tagsField->setCanCreate(true); // new tag DataObjects can be created (@TODO check privileges)
 			$fields->insertAfter($tagsField, "Categories");
 		}
 		
+	}
+	
+	// Set HolderPage relationship on all categories and tags assigned to this item
+	public function onAfterWrite() {
+		parent::onAfterWrite();
+		
+		foreach($this->owner->Categories() as $category) {
+			$category->HolderPageID = $this->owner->ParentID;
+			$category->write();
+		}
+		
+		foreach($this->owner->Tags() as $tag) {
+			$tag->HolderPageID = $this->owner->ParentID;
+			$tag->write();
+		}
 	}
 	
 	public function onBeforeWrite() {
